@@ -145,9 +145,7 @@ defmodule Absinthe.Schema do
   alias Absinthe.Language
   alias __MODULE__
 
-  @doc """
-  Return the default middleware set for a field if none exists
-  """
+  @doc false
   def ensure_middleware([], _field, %{identifier: :subscription}) do
     [Absinthe.Middleware.PassParent]
   end
@@ -156,6 +154,31 @@ defmodule Absinthe.Schema do
   end
   def ensure_middleware(middleware, _field, _object) do
     middleware
+  end
+
+  @doc """
+  Replace defautl middleware with a different middleware
+
+  ## Example
+  Use this function within your schema's `middleware/3` callback to replace the
+  default middleware that gets set.
+
+  So for example if you want to have all fields on your `:config` object resolved
+  using string keys by default instead of atom keys you can do
+
+  ```
+  def middlware(middleware, field, %{identifier: :config} = object) do
+    new_middleware = {Absinthe.Middleware.MapGet, to_string(field.identifier)}
+    Absinthe.Schema.replace_default(middleware, new_middleware, field, object)
+  end
+  ```
+  """
+  def replace_default(middleware_list, new_middleware, %{identifier: identifier}, object) do
+    Enum.map(middleware_list, fn middleware ->
+      with {Absinthe.Middleware.MapGet, ^identifier} <- middleware do
+        new_middleware
+      end
+    end)
   end
 
   @doc """
@@ -261,35 +284,6 @@ defmodule Absinthe.Schema do
       details ->
         raise Absinthe.Schema.Error, details
     end
-  end
-
-  defmacro default_resolve(_) do
-    raise """
-    Don't use this anymore, instead use middleware, see the middleware
-    module doc.
-
-    If you had this before:
-    ```
-    default_resolve fn parent, _args, info ->
-      # stuff here
-    end
-    ```
-
-    Instead do:
-    ```
-    def middleware([], _field, _object) do
-      middleware_spec = Absinthe.Resolution.resolver_spec(fn parent, _args, info ->
-        # stuff here
-      end)
-
-      [middleware_spec]
-    end
-    def middleware(middleware, _, _) do
-      middleware
-    end
-    ```
-    """
-    []
   end
 
   @default_query_name "RootQueryType"
@@ -452,7 +446,7 @@ defmodule Absinthe.Schema do
   @doc """
   Lookup a type by name, identifier, or by unwrapping.
   """
-  @spec lookup_type(atom, Type.wrapping_t | Type.t | Type.identifier_t, Keyword.t) :: Type.t | nil
+  @spec lookup_type(atom, Type.t | Type.identifier_t, Keyword.t) :: Type.t | nil
   def lookup_type(schema, type, options \\ [unwrap: true]) do
     cond do
       is_atom(type) ->

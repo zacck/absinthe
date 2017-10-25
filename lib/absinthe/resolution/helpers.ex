@@ -15,8 +15,7 @@ defmodule Absinthe.Resolution.Helpers do
 
   Forbidden in mutation fields. (TODO: actually enforce this)
   """
-  @spec async(( -> term)) :: {:middleware, Middleware.Async, term}
-  @spec async(( -> term), Keyword.t) :: {:middleware, Middleware.Async, term}
+  @spec async(( -> term), Keyword.t) :: {:middleware, Middleware.Async, {(() -> term), term}}
   def async(fun, opts \\ []) do
     {:middleware, Middleware.Async, {fun, opts}}
   end
@@ -46,8 +45,7 @@ defmodule Absinthe.Resolution.Helpers do
   end
   ```
   """
-  @spec batch(Middleware.Batch.batch_fun, term, Middleware.Batch.post_batch_fun) :: {:plugin, Middleware.Batch, term}
-  @spec batch(Middleware.Batch.batch_fun, term, Middleware.Batch.post_batch_fun, opts :: Keyword.t):: {:plugin, Middleware.Batch, term}
+  @spec batch(Middleware.Batch.batch_fun, term, Middleware.Batch.post_batch_fun, opts :: Keyword.t):: {:plugin, Middleware.Batch, {term, term, term, term}}
   def batch(batch_fun, batch_data, post_batch_fun, opts \\ []) do
     batch_config = {batch_fun, batch_data, post_batch_fun, opts}
     {:middleware, Middleware.Batch, batch_config}

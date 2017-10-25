@@ -29,6 +29,7 @@ defmodule Absinthe.Blueprint.Execution do
   """
 
   alias Absinthe.Phase
+  alias Absinthe.Resolution.Result
 
   @type acc :: map
 

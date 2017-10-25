@@ -1,7 +1,7 @@
 defmodule Mix.Tasks.Absinthe.Schema.Json do
   require Logger
-  use Mix.Task
   import Mix.Generator
+  use Mix.Task
 
   @shortdoc "Generate a schema.json file for an Absinthe schema"
 

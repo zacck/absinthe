@@ -153,8 +153,13 @@ defmodule Absinthe.Schema do
       end
 
       @doc false
-      def context(context) do
+      def context(context, _options) do
         context
+      end
+
+      @doc false
+      def pipeline(pipeline, _options) do
+        pipeline
       end
 
       @doc false
@@ -179,7 +184,7 @@ defmodule Absinthe.Schema do
         Absinthe.Plugin.defaults()
       end
 
-      defoverridable middleware: 3, plugins: 0, context: 1
+      defoverridable middleware: 3, plugins: 0, context: 2, pipeline: 2
     end
   end
 
@@ -242,7 +247,15 @@ defmodule Absinthe.Schema do
   """
   @callback plugins() :: [Absinthe.Plugin.t]
   @callback middleware([Absinthe.Middleware.spec, ...], Type.Field.t, Type.Object.t) :: [Absinthe.Middleware.spec, ...]
-  @callback context(map) :: map
+  @doc """
+  Setup the context for an operation.
+
+  While `Absinthe.run/2` and other ways of running a document provide ways to add
+  a context, there are sometimes values that a schema may want to always have
+  configured without requiring that it's passed in on every invocation.
+  """
+  @callback context(map, Keyword.t) :: map
+  @callback pipeline(Absinthe.Pipeline.t, Keyword.t) :: Absinthe.Pipeline.t
 
   @doc false
   def __after_compile__(env, _bytecode) do

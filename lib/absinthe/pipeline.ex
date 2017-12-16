@@ -43,7 +43,7 @@ defmodule Absinthe.Pipeline do
   @spec for_document(Absinthe.Schema.t, Keyword.t) :: t
   def for_document(schema, options \\ []) do
     options = options(Keyword.put(options, :schema, schema))
-    [
+    pipeline = [
       # Parse Document
       {Phase.Parse, options},
       # Convert to Blueprint
@@ -104,6 +104,12 @@ defmodule Absinthe.Pipeline do
       # Format Result
       Phase.Document.Result
     ]
+
+    if schema do
+      schema.pipeline(pipeline, options)
+    else
+      pipeline
+    end
   end
 
   @defaults [

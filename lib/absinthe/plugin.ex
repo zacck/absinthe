@@ -10,7 +10,7 @@ defmodule Absinthe.Plugin do
   @type t :: module
 
   @doc """
-  callback to setup the resolution accumulator prior to resolution.
+  Callback to setup the resolution accumulator prior to resolution.
 
   NOTE: This function is given the full accumulator. Namespacing is suggested to
   avoid conflicts.
@@ -18,7 +18,7 @@ defmodule Absinthe.Plugin do
   @callback before_resolution(execution :: Document.Execution.t) :: Document.Execution.t
 
   @doc """
-  callback to do something with the resolution accumulator after
+  Callback to do something with the resolution accumulator after
   resolution.
 
   NOTE: This function is given the full accumulator. Namespacing is suggested to
@@ -27,7 +27,7 @@ defmodule Absinthe.Plugin do
   @callback after_resolution(execution :: Document.Execution.t) :: Document.Execution.t
 
   @doc """
-  callback used to specify additional phases to run.
+  Callback used to specify additional phases to run.
 
   Plugins may require additional resolution phases to be run. This function should
   use values set in the resolution accumulator to determine

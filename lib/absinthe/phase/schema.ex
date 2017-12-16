@@ -28,14 +28,20 @@ defmodule Absinthe.Phase.Schema do
 
     result =
       input
-      |> update_context(schema)
+      |> update_context(schema, options)
       |> Blueprint.prewalk(&handle_node(&1, schema, adapter))
     {:ok, result}
   end
 
-  defp update_context(input, nil), do: input
-  defp update_context(input, schema) do
-    context = schema.context(input.execution.context)
+  defp update_context(input, nil, _), do: input
+  defp update_context(input, schema, options) do
+    context = cond do
+      function_exported?(schema, :context, 1) ->
+        schema.context(input.execution.context)
+      true ->
+        schema.context(input.execution.context, options)
+    end
+
     put_in(input.execution.context, context)
   end
 

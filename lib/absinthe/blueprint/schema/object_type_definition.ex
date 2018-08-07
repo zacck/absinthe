@@ -12,11 +12,13 @@ defmodule Absinthe.Blueprint.Schema.ObjectTypeDefinition do
     interfaces: [],
     fields: [],
     directives: [],
+    is_type_of: nil,
     # Added by phases
     flags: %{},
     imports: [],
     errors: [],
-    meta: %{}
+    meta: %{},
+    __reference__: nil
   ]
 
   @type t :: %__MODULE__{
@@ -35,6 +37,7 @@ defmodule Absinthe.Blueprint.Schema.ObjectTypeDefinition do
     %Absinthe.Type.Object{
       identifier: type_def.identifier,
       name: type_def.name,
+      description: type_def.description,
       fields: build_fields(type_def, schema.module)
     }
   end
@@ -73,8 +76,14 @@ defmodule Absinthe.Blueprint.Schema.ObjectTypeDefinition do
     end)
   end
 
-  def shim(res, {module, obj, field}) do
-    middleware = apply(module, :__absinthe_function__, [Absinthe.Type.Object, obj, {field, :middleware}])
+  def shim(res, {module, obj, field} = k) do
+    middleware =
+      apply(module, :__absinthe_function__, [
+        Absinthe.Type.Field,
+        {obj, field},
+        :middleware
+      ])
+
     %{res | middleware: middleware}
   end
 end

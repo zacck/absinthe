@@ -13,7 +13,9 @@ defmodule Absinthe.Blueprint.Schema.InterfaceTypeDefinition do
     directives: [],
     # Added by phases
     flags: %{},
-    errors: []
+    errors: [],
+    resolve_type: nil,
+    __reference__: nil
   ]
 
   @type t :: %__MODULE__{

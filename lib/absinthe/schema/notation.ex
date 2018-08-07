@@ -1476,7 +1476,7 @@ defmodule Absinthe.Schema.Notation do
       for %Schema.ObjectTypeDefinition{} = type <- schema.types,
           field <- type.fields do
         quote do
-          def __absinthe_middleware__(unquote(type.identifier), unquote(field.identifier)) do
+          def __absinthe_function__(Absinthe.Type.Object, unquote(type.identifier), {unquote(field.identifier), :middleware}) do
             unquote(field.middleware_ast)
           end
         end

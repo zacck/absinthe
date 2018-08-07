@@ -40,14 +40,14 @@ defmodule Absinthe.Type.Scalar do
   def serialize(type, value) do
     module = type.serialize
 
-    function = module.__absinthe_serialize__(:scalar, type.identifier, :serialize)
+    function = module.__absinthe_function__(:scalar, type.identifier, :serialize)
     function.(value)
   end
 
   def parse(type, value, context \\ %{}) do
     module = type.parse
 
-    parser = module.__absinthe_parse__(:scalar, type.identifier, :parse)
+    parser = module.__absinthe_function__(:scalar, type.identifier, :parse)
 
     case parser do
       parser when is_function(parser, 1) ->

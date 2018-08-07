@@ -1430,25 +1430,47 @@ defmodule Absinthe.Schema.Notation do
     # TODO: handle multiple schemas
     [schema] = blueprint.schema_definitions
 
+    absinthe_functions = generate_absinthe_function(schema)
+
+    quote do
+      unquote(__MODULE__).noop(@desc)
+
+      def __absinthe_blueprint__ do
+        unquote(Macro.escape(blueprint))
+      end
+
+      unquote_splicing(absinthe_functions)
+    end
+  end
+
+  defp generate_absinthe_function(schema) do
+
+    funcs = []
+
     # This goes through the schema adding a serialization function to the module for each scalar
-    scalar_serialize =
+    scalar_serializers =
       for %Schema.ScalarTypeDefinition{} = type <- schema.types do
         quote do
-          def __absinthe_serialize__(:scalar, unquote(type.identifier), :serialize) do
+          def __absinthe_function__(:scalar, unquote(type.identifier), :serialize) do
             unquote(type.serialize)
           end
         end
       end
 
+    funcs = [scalar_serializers | funcs]
+
     # This goes through the schema adding a parsing function to the module for each scalar
-    scalar_parse =
+    scalar_parsers =
       for %Schema.ScalarTypeDefinition{} = type <- schema.types do
         quote do
-          def __absinthe_parse__(:scalar, unquote(type.identifier), :parse) do
+          def __absinthe_function__(:scalar, unquote(type.identifier), :parse) do
             unquote(type.parse)
           end
         end
       end
+
+    funcs = [scalar_parsers | funcs]
+
 
     middleware =
       for %Schema.ObjectTypeDefinition{} = type <- schema.types,
@@ -1460,19 +1482,7 @@ defmodule Absinthe.Schema.Notation do
         end
       end
 
-    quote do
-      unquote(__MODULE__).noop(@desc)
-
-      def __absinthe_blueprint__ do
-        unquote(Macro.escape(blueprint))
-      end
-
-      unquote_splicing(middleware)
-
-      unquote_splicing(scalar_serialize)
-
-      unquote_splicing(scalar_parse)
-    end
+    funcs = [middleware | funcs]
   end
 
   defp intersperse_descriptions(attrs, descs) do
